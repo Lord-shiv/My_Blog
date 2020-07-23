@@ -4,11 +4,11 @@
 {% block content %}
 
     <!-- Hero Section-->
-    <section style="background: url({% static 'img/hero.jpg' %}); background-size: cover; background-position: center center" class="hero">
+    <section style="background: url('https://s3.ap-south-1.amazonaws.com/shivboy.shiv/img/hero.jpg'); background-size: cover; background-position: center center" class="hero">
       <div class="container">
         <div class="row">
           <div class="col-lg-7">
-            <h1>Bootstrap 4 Blog - A free template by Bootstrap Temple</h1><a href="#" class="hero-link">Discover More</a>
+            <h1>Welcome to  Social Blog - A platform to share your Knowledge.</h1><a href="/blog" class="hero-link">Discover More</a>
           </div>
         </div><a href=".intro" class="continue link-scroll"><i class="fa fa-long-arrow-down"></i> Scroll Down</a>
       </div>
@@ -41,7 +41,7 @@
                     <a href="#">{{ cat }}</a>
                     {% endfor %}
                   </div>
-                  <a href="post.html">
+                  <a href="{{ obj.get_absolute_url }}">
                     <h2 class="h4">{{ obj.title }}</h2>
                     </a>
                 </header>
@@ -63,11 +63,12 @@
       </div>
     </section>
     <!-- Divider Section-->
-    <section style="background: url({% static 'img/divider-bg.jpg' %}); background-size: cover; background-position: center bottom" class="divider">
+    <section style="background: url('https://s3.ap-south-1.amazonaws.com/shivboy.shiv/img/divider-bg.jpg'); background-size: cover; background-position: center bottom" class="divider">
       <div class="container">
         <div class="row">
           <div class="col-md-7">
-            <h2>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</h2><a href="#" class="hero-link">View More</a>
+            <h2>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</h2>
+            <!-- <a href="#" class="hero-link">View More</a> -->
           </div>
         </div>
       </div>
@@ -77,7 +78,7 @@
       <div class="container">
         <header> 
           <h2>Latest from the blog</h2>
-          <p class="text-big">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+          <p class="text-big">Latest posts by new users. You can add your post by clicking on Create on the top of the page.</p>
         </header>
         <div class="row">
           {% for obj in latest %}
@@ -91,7 +92,7 @@
                   <a href="#">{{ cat }}</a>
                   {% endfor %}
                   </div>
-              </div><a href="#">
+              </div><a href="{{ obj.get_absolute_url }}">
                 <h3 class="h4">{{ obj.title }}</h3></a>
               <p class="text-muted">{{ obj.overview|linebreaks|truncatechars:200 }}</p>
             </div>
@@ -101,16 +102,16 @@
       </div>
     </section>
     <!-- Newsletter Section-->
-    <section class="newsletter no-padding-top">    
+    <!-- <section class="newsletter no-padding-top">    
       <div class="container">
         <div class="row">
           <div class="col-md-6">
-            <h2>Subscribe to Newsletter</h2>
-            <p class="text-big">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <h2> Subscribe to our Latest Updates and posts</h2>
+            <p class="text-big">Lorem this is somthing sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
           </div>
           <div class="col-md-8">
             <div class="form-holder">
-              <form action="{% url 'email-list-signup' %}" method="POST">
+              <form action="#" method="POST">
                 {% csrf_token %}
                 <div class="form-group">
                     {{ form }}
@@ -121,24 +122,24 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
     <!-- Gallery Section-->
     <section class="gallery no-padding">    
       <div class="row">
         <div class="mix col-lg-3 col-md-3 col-sm-6">
-          <div class="item"><a href="img/gallery-1.jpg" data-fancybox="gallery" class="image"><img src="{% static 'img/gallery-1.jpg' %}" alt="..." class="img-fluid">
+          <div class="item"><a href="https://s3.ap-south-1.amazonaws.com/shivboy.shiv/img/gallery-1.jpg" data-fancybox="gallery" class="image"><img src="https://s3.ap-south-1.amazonaws.com/shivboy.shiv/img/gallery-1.jpg" alt="..." class="img-fluid">
               <div class="overlay d-flex align-items-center justify-content-center"><i class="icon-search"></i></div></a></div>
         </div>
         <div class="mix col-lg-3 col-md-3 col-sm-6">
-          <div class="item"><a href="img/gallery-2.jpg" data-fancybox="gallery" class="image"><img src="{% static 'img/gallery-2.jpg' %}" alt="..." class="img-fluid">
+          <div class="item"><a href="https://s3.ap-south-1.amazonaws.com/shivboy.shiv/img/gallery-2.jpeg" data-fancybox="gallery" class="image"><img src="https://s3.ap-south-1.amazonaws.com/shivboy.shiv/img/gallery-2.jpeg" alt="..." class="img-fluid">
               <div class="overlay d-flex align-items-center justify-content-center"><i class="icon-search"></i></div></a></div>
         </div>
         <div class="mix col-lg-3 col-md-3 col-sm-6">
-          <div class="item"><a href="img/gallery-3.jpg" data-fancybox="gallery" class="image"><img src="{% static 'img/gallery-3.jpg' %}" alt="..." class="img-fluid">
+          <div class="item"><a href="https://s3.ap-south-1.amazonaws.com/shivboy.shiv/img/gallery-3.jpg" data-fancybox="gallery" class="image"><img src="https://s3.ap-south-1.amazonaws.com/shivboy.shiv/img/gallery-3.jpg" alt="..." class="img-fluid">
               <div class="overlay d-flex align-items-center justify-content-center"><i class="icon-search"></i></div></a></div>
         </div>
         <div class="mix col-lg-3 col-md-3 col-sm-6">
-          <div class="item"><a href="img/gallery-4.jpg" data-fancybox="gallery" class="image"><img src="{% static 'img/gallery-4.jpg' %}" alt="..." class="img-fluid">
+          <div class="item"><a href="https://s3.ap-south-1.amazonaws.com/shivboy.shiv/img/gallery-4.jpg " data-fancybox="gallery" class="image"><img src="https://s3.ap-south-1.amazonaws.com/shivboy.shiv/img/gallery-4.jpg" alt="..." class="img-fluid">
               <div class="overlay d-flex align-items-center justify-content-center"><i class="icon-search"></i></div></a></div>
         </div>
       </div>

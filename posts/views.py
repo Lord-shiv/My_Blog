@@ -4,16 +4,74 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .forms import CommentForm, PostForm
-from .models import Post, Author, PostView
-from marketing.forms import EmailSignupForm
-from marketing.models import Signup
 
-form = EmailSignupForm()
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from .forms import CommentForm, PostForm, UserLoginForm, UserRegisterForm, ProfileForm
+from .models import Post, PostView, Userprofile
+
+
+from django.conf import settings
+
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+
+from django.contrib.auth import (
+    authenticate,
+    get_user_model,
+    login,
+    logout
+)
+
+
+
+def login_view(request):
+    next = request.GET.get('next')
+    form = UserLoginForm(request.POST or None)
+    if form.is_valid():
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+        user = authenticate(username=username, password=password)
+        login(request, user)
+        if next:
+            return redirect(next)
+        return redirect('/')
+    else:
+        messages.info(request, 'Username or password incorrect')
+            
+    context = {
+        'form': form,
+    }
+    return render(request, "login.html", context)
+
+
+def register_view(request):
+	if request.user.is_authenticated:
+		return redirect('/')
+	else:
+		form = UserRegisterForm()
+		if request.method == 'POST':
+			form = UserRegisterForm(request.POST)
+			if form.is_valid():
+				form.save()
+				user = form.cleaned_data.get('username')
+				messages.success(request, 'Account was created for ' + user)
+
+				return redirect('login')
+			
+
+		context = {'form':form}
+		return render(request, 'signup.html', context)
+
+def logout_view(request):
+    logout(request)
+    return redirect('/')
+
 
 
 def get_author(user):
-    qs = Author.objects.filter(user=user)
+    qs = Userprofile.objects.filter(user=user)
     if qs.exists():
         return qs[0]
     return None
@@ -29,7 +87,8 @@ class SearchView(View):
                 Q(overview__icontains=query)
             ).distinct()
         context = {
-            'queryset': queryset
+            'queryset': queryset,
+            'query' : query
         }
         return render(request, 'search_results.html', context)
 
@@ -43,7 +102,8 @@ def search(request):
             Q(overview__icontains=query)
         ).distinct()
     context = {
-        'queryset': queryset
+        'queryset': queryset,
+        'query' : query
     }
     return render(request, 'search_results.html', context)
 
@@ -57,25 +117,17 @@ def get_category_count():
 
 
 class IndexView(View):
-    form = EmailSignupForm()
 
     def get(self, request, *args, **kwargs):
-        featured = Post.objects.filter(featured=True)
+        featured = Post.objects.filter(featured=True)[0:3]
         latest = Post.objects.order_by('-timestamp')[0:3]
         context = {
             'object_list': featured,
             'latest': latest,
-            'form': self.form
         }
         return render(request, 'index.html', context)
 
-    def post(self, request, *args, **kwargs):
-        email = request.POST.get("email")
-        new_signup = Signup()
-        new_signup.email = email
-        new_signup.save()
-        messages.info(request, "Successfully subscribed")
-        return redirect("home")
+
 
 
 def index(request):
@@ -91,26 +143,25 @@ def index(request):
     context = {
         'object_list': featured,
         'latest': latest,
-        'form': form
     }
     return render(request, 'index.html', context)
 
 
 class PostListView(ListView):
-    form = EmailSignupForm()
     model = Post
     template_name = 'blog.html'
     context_object_name = 'queryset'
-    paginate_by = 1
+    paginate_by = 3
 
     def get_context_data(self, **kwargs):
         category_count = get_category_count()
-        most_recent = Post.objects.order_by('-timestamp')[:4]
+        most_recent = Post.objects.order_by('-timestamp')[:5]
+        post_list = Post.objects.all()[:6]
         context = super().get_context_data(**kwargs)
         context['most_recent'] = most_recent
+        context['post_list'] = post_list
         context['page_request_var'] = "page"
         context['category_count'] = category_count
-        context['form'] = self.form
         return context
 
 
@@ -131,6 +182,7 @@ def post_list(request):
     context = {
         'queryset': paginated_queryset,
         'most_recent': most_recent,
+        'post_list': post_list,
         'page_request_var': page_request_var,
         'category_count': category_count,
         'form': form
@@ -201,7 +253,7 @@ def post_detail(request, id):
     return render(request, 'post.html', context)
 
 
-class PostCreateView(CreateView):
+class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     template_name = 'post_create.html'
     form_class = PostForm
@@ -222,7 +274,7 @@ class PostCreateView(CreateView):
 def post_create(request):
     title = 'Create'
     form = PostForm(request.POST or None, request.FILES or None)
-    author = get_author(request.user)
+    author = get_author(request.user, on_delete=get_author.CASCADE, null=True, blank=True) 
     if request.method == "POST":
         if form.is_valid():
             form.instance.author = author
@@ -237,7 +289,7 @@ def post_create(request):
     return render(request, "post_create.html", context)
 
 
-class PostUpdateView(UpdateView):
+class PostUpdateView(LoginRequiredMixin, UpdateView):
     model = Post
     template_name = 'post_create.html'
     form_class = PostForm
@@ -277,7 +329,7 @@ def post_update(request, id):
     return render(request, "post_create.html", context)
 
 
-class PostDeleteView(DeleteView):
+class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = Post
     success_url = '/blog'
     template_name = 'post_confirm_delete.html'
@@ -287,3 +339,85 @@ def post_delete(request, id):
     post = get_object_or_404(Post, id=id)
     post.delete()
     return redirect(reverse("post-list"))
+
+
+# @login_required
+# def profile(request, pk=None):
+#     if request.method == 'POST':
+#         form = ProfileForm(request.POST)
+#         if form.is_valid():
+#             form.instance.author = request.user
+#             form.save()
+#             return redirect('profile')
+#     else:
+#         form = PostForm()
+#     context = {'p_form' : form}
+#     return render(request, 'profile.html', context)
+
+# @login_required
+# def profile(request):
+#     if request.method == 'POST':
+#         p_form = ProfileForm(request.POST,
+#                              request.FILES,
+#                              instance = request.user.author)
+        
+#         if p_form.is_valid():
+#             p_form.save()
+#             messages.success(request, f'your account has been updated!')
+#             return redirect('profile')
+        
+#     else:
+#         p_form = ProfileForm()
+    
+#     context = {
+#         'p_form': p_form
+#     }
+
+#     return render(request, 'profile.html', context)
+
+# @login_required
+# def profile(request):
+#     if request.method == 'POST':
+#         p_form = ProfileForm(request.POST, request.FILES)
+
+#         if p_form.is_valid():
+#             p_form.save()
+#             messages.success(request, f'your account has been updated!')
+#             return redirect('login')
+
+#     else:
+#         p_form = ProfileForm(request.POST, request.FILES)
+#     context = {
+#         'p_form': p_form
+#     }
+
+#     return render(request, 'profile.html', context)
+
+# @login_required()
+# def profile(request):
+#     p_form = ProfileForm(request.POST or None, request.FILES or None)
+#     if p_form.is_valid():
+#         profile = p_form.save(commit=False)
+#         profile.user = request.qs
+#         profile.save()
+#         p_form.save()
+#     context = {'p_form': p_form}
+#     return render(request, 'profile.html', context)
+
+@login_required()
+def profile(request):
+    instance = get_object_or_404(Userprofile, user=request.user)
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=instance)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.user = request.user
+            instance.save()
+    else:
+        form = ProfileForm(instance=instance)
+    context = {
+       "p_form":form,
+       "instance": instance,}
+    return render(request, "profile.html", context)
+
+    

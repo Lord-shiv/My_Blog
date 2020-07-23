@@ -16,7 +16,9 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1', '134.209.224.211']
 
 
+
 # Application definition
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -34,8 +36,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'tinymce',
 
-    'marketing',
-    'posts'
+    'posts',
+    'storages',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -74,25 +76,24 @@ WSGI_APPLICATION = 'blog.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
+# if DEBUG:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         }
+#     }
+# else:
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'demo_1',
+        'USER': 'shiv',
+        'PASSWORD': 'Shiv1234',
+        'HOST': 'database-1.cipid7m0psnu.ap-south-1.rds.amazonaws.com',
+        'PORT': '5432',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'blogdb',
-            'USER': 'blog_admin',
-            'PASSWORD': 'testing123',
-            'HOST': 'localhost',
-            'PORT': '',
-        }
-    }
-
+}
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
@@ -132,7 +133,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static_in_env')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Tinymce
@@ -172,7 +173,44 @@ MAILCHIMP_EMAIL_LIST_ID = ''
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend'
 )
 
 SITE_ID = 1
+
+LOGIN_REDIRECT_URL = 'home'
+
+LOGIN_URL = 'login'
+
+
+#SMTP Configuration
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'devilproduction528@gmail.com'
+EMAIL_HOST_PASSWORD = "jwexbwogytagvfcl"
+
+
+AUTH_PROFILE_MODULE = 'posts.Author'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+# AWS S3 buckets CONFIG
+
+AWS_ACCESS_KEY_ID = 'AKIA42IJGSNOQK5U23MY'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'shivboy.shiv'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_S3_REGION_NAME = 'ap-south-1'
+# S3_URL = "https://shivboy.shiv.s3.amazonaws.com"
+# S3_URL = '//%s.s3.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
+# MEDIA_URL = '//%s.s3.amazonaws.com/media/' % AWS_STORAGE_BUCKET_NAME
+# MEDIA_ROOT = MEDIA_URL
+# STATIC_URL = S3_URL + 'static/'
+# ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'

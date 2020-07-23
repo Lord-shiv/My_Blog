@@ -10,12 +10,12 @@
           <div class="container">
             <div class="row">
               <!-- post -->
-              {% for post in most_recent %}
+              {% for post in post_list %}
               <div class="post col-xl-6">
                 <div class="post-thumbnail"><a href="{{ post.get_absolute_url }}"><img src="{{ post.thumbnail.url }}" alt="..." class="img-fluid"></a></div>
                 <div class="post-details">
                   <div class="post-meta d-flex justify-content-between">
-                    {% comment %} <div class="date meta-last">20 May | 2020</div> {% endcomment %}
+                    <div class="date meta-last">May | 2020</div>
                     <div class="category">
                     {% for cat in post.categories.all %}
                     <a href="#">{{ cat }}</a>
@@ -36,7 +36,7 @@
               </div>
               {% endfor %}
             </div>
-            <!-- Pagination -->
+            <!-- Pagination
             <nav aria-label="Page navigation example">
               <ul class="pagination pagination-template d-flex justify-content-center">
                 {% if queryset.has_previous %}                
@@ -47,7 +47,7 @@
                 <li class="page-item"><a href="?{{ page_request_var }}={{ queryset.next_page_number }}" class="page-link"> <i class="fa fa-angle-right"></i></a></li>
                 {% endif %}
               </ul>
-            </nav>
+            </nav> -->
 
             {% if is_paginated %}
             

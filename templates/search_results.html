@@ -3,10 +3,97 @@
 
 {% block content %}
 
-<h2>This is the results of your search</h2>
-{% for post in queryset %}
-    <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
-    <br />
-{% endfor %}
+    {% if queryset %}
+            <div class="container">
+            <div class="row">
+                <!-- Latest Posts -->
+                <main class="posts-listing col-lg-8"> 
+                <div class="container">
+                    <div><p class="text-big">Search results of "{{ query }}" </p></div>
+                    <div class="row">
+                    <!-- post -->
+                    {% for post in queryset %}
+                    
+                    <div class="post col-xl-6">
+                        <div class="post-thumbnail"><a href="{{ post.get_absolute_url }}"><img src="{{ post.thumbnail.url }}" alt="..." class="img-fluid"></a></div>
+                        <div class="post-details">
+                        <div class="post-meta d-flex justify-content-between">
+                            <div class="date meta-last">May | 2020</div>
+                            <div class="category">
+                            {% for cat in post.categories.all %}
+                            <a href="#">{{ cat }}</a>
+                            {% endfor %}
+                            </div>
+                        </div><a href="{{ post.get_absolute_url }}">
+                            <h3 class="h4">{{ post.title }}</h3></a>
+                        <p class="text-muted">{{ post.overview }}</p>
+                        <footer class="post-footer d-flex align-items-center">
+                            <a href="#" class="author d-flex align-items-center flex-wrap">
+                            <div class="avatar"><img src="{{ post.author.profile_picture.url }}" alt="..." class="img-fluid"></div>
+                            <div class="title"><span>{{ post.author.user.username }}</span></div>
+                            </a>
+                            <div class="date"><i class="icon-clock"></i>{{ post.timestamp|timesince }} ago</div>
+                            <div class="comments meta-last"><i class="icon-comment"></i>{{ post.comment_count }}</div>
+                        </footer>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    </div>
+                    <!-- Pagination
+                    <nav aria-label="Page navigation example">
+                    <ul class="pagination pagination-template d-flex justify-content-center">
+                        {% if queryset.has_previous %}                
+                        <li class="page-item"><a href="?{{ page_request_var }}={{ queryset.previous_page_number }}" class="page-link"> <i class="fa fa-angle-left"></i></a></li>
+                        {% endif %}
+                        <li class="page-item"><a href="?{{ page_request_var }}={{ queryset.number }}" class="page-link active">{{ queryset.number }}</a></li>
+                        {% if queryset.has_next %}
+                        <li class="page-item"><a href="?{{ page_request_var }}={{ queryset.next_page_number }}" class="page-link"> <i class="fa fa-angle-right"></i></a></li>
+                        {% endif %}
+                    </ul>
+                    </nav> -->
 
-{% endblock %}
+                    {% if is_paginated %}
+                    
+                    <nav aria-label="Page navigation example">
+                    <ul class="pagination pagination-template d-flex justify-content-center">
+                        {% if page_obj.has_previous %}                
+                        <li class="page-item"><a href="?{{ page_request_var }}={{ page_obj.previous_page_number }}" class="page-link"> <i class="fa fa-angle-left"></i></a></li>
+                        {% endif %}
+                        <li class="page-item"><a href="?{{ page_request_var }}={{ page_obj.number }}" class="page-link active">{{ page_obj.number }}</a></li>
+                        {% if page_obj.has_next %}
+                        <li class="page-item"><a href="?{{ page_request_var }}={{ page_obj.next_page_number }}" class="page-link"> <i class="fa fa-angle-right"></i></a></li>
+                        {% endif %}
+                    </ul>
+                    </nav>
+                    
+                    {% endif %}
+                </div>
+                </main>
+                {% include 'sidebar.html' with most_recent=most_recent category_count=category_count %}
+            </div>
+            </div>
+    {% else %}
+    <div class="container">
+        <p></p>
+        <p class="text-big">There are no results for "{{ queryset}}" </p>
+    
+    <div class="card-body">
+        <h5 class="card-title">For Creating your own post</h5>
+        <p class="card-text">1. Make sure you create an account first. <br> 2. Click on create at home screen. <br>3. In next page add content to your post.</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'post-create' %}" class="btn btn-primary">Click here to Create post</a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">You can comment on proples post</h5>
+        <p class="card-text">1. Make sure you create an account first. <br> 2. Click on Blogs at home screen. <br>3. In next page click on post you wnat to comment. <br>4. Go to bottum of the page and add your comment</p>
+        {% if user.is_authenticated %}
+        <a href="/blog" class="btn btn-primary">Click here to go to Blogs</a>
+        {% endif %}
+        <p></p>
+    </div>
+    </div>
+
+    {% endif %}
+
+{% endblock content %}
